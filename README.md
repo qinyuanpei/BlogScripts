@@ -1,0 +1,2 @@
+# BlogScripts
+一个为Hexo和CSDN生成文档目录以及导出CSDN到Hexo的小工具
