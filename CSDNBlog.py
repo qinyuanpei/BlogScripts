@@ -2,16 +2,19 @@
 import os
 import re
 import sys
+import time
 import json
 import requests
 import datetime
 import html2text
+from BaiduTranslate import BaiduTranslate
 from bs4 import BeautifulSoup
 
 class CSDNBlog:
 
     def __init__(self,uid):
         self.uid = uid
+        self.translateClient = BaiduTranslate('20151113000005349','osubCEzlGjzvw8qdQc41')
 
     # 生成目录
     def generateTOC(self,fileName): 
@@ -32,8 +35,10 @@ class CSDNBlog:
         basePath = basePath + '\\blogs\\'
         if(os.path.exists(basePath) == False):
             os.makedirs(basePath)
+        
         for item in self.getPosts():
-            fileName = u'{0}\\{1}.md'.format(basePath,item['title'])
+            title = self.translateClient.translate(item['title'])
+            fileName = u'{0}\\{1}.md'.format(basePath,title)
             print('Generate file:{0}'.format(fileName))
             with open(fileName,'wt',encoding='utf-8') as f:
                 f.write('title: {0}\n'.format(item['title']))
@@ -48,6 +53,7 @@ class CSDNBlog:
                 ))
                 f.write('---\n')
                 f.write(item['content'])
+            time.sleep(1)
 
     # 返回文章信息
     def getPost(self,soup):
@@ -55,7 +61,10 @@ class CSDNBlog:
 
         #title/link of post
         span_title = soup.find_all('span',class_='link_title')[0]
-        post['title'] = span_title.a.text.strip().replace('/','').replace('''"''','')
+        post['title'] = span_title.a.text.strip()
+            .replace('/','')
+            .replace('''"''','')
+
         post['link'] = span_title.a['href']
 
         #date of post
@@ -142,7 +151,7 @@ class CSDNBlog:
         details['content'] = html2text.html2text(html_content)
 
         return details
-
+ 
 
 
 blog = CSDNBlog('qinyuanpei')
