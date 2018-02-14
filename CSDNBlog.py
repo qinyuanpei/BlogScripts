@@ -5,7 +5,7 @@ import sys
 import json
 import requests
 import datetime
-from tomd import Tomd
+import html2text
 from bs4 import BeautifulSoup
 
 class CSDNBlog:
@@ -46,7 +46,7 @@ class CSDNBlog:
                 f.write('tags: {0}\n'.format(
                    '[' + ','.join(item['tags']) + ']'
                 ))
-                f.write('\n---')
+                f.write('---\n')
                 f.write(item['content'])
 
     # 返回文章信息
@@ -55,7 +55,7 @@ class CSDNBlog:
 
         #title/link of post
         span_title = soup.find_all('span',class_='link_title')[0]
-        post['title'] = span_title.a.text.strip()
+        post['title'] = span_title.a.text.strip().replace('/','').replace('''"''','')
         post['link'] = span_title.a['href']
 
         #date of post
@@ -139,11 +139,13 @@ class CSDNBlog:
         
         details['tags'] = tags
         details['categories'] = categories
-        details['content'] = html_content
+        details['content'] = html2text.html2text(html_content)
 
         return details
 
+
+
 blog = CSDNBlog('qinyuanpei')
-#blog.generateTOC('CSDNTOC.md')
+blog.generateTOC('CSDNTOC.md')
 blog.generateMarkdown()
 
